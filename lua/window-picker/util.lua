@@ -47,33 +47,52 @@ function M.merge_config(current_config, new_config)
 end
 
 function M.is_float(window)
-    local config = v.api.nvim_win_get_config(window)
+	local config = v.api.nvim_win_get_config(window)
 
-    return config.relative ~= ''
+	return config.relative ~= ''
 end
 
 local getwin = vim.api.nvim_get_current_win
 -- split from winid using spl() and return either the new or existing window
 -- make sure cursor stays in curwin
-local make_split = function(winid, split, new)
-	local id = vim.api.nvim_win_call(winid, function()
-		split()
-		return new and getwin() or winid
+---@param winid window
+---@param key "h" | "j" | "k" | "k" Direction key to split the window in
+local make_split = function(winid, key)
+	return vim.api.nvim_win_call(winid, function()
+		local sr = vim.o.splitright
+		local sb = vim.o.splitbelow
+		if key == 'h' then
+			vim.o.splitright = false
+			vim.cmd.vsplit()
+		elseif key == 'j' then
+			vim.o.splitbelow = true
+			vim.cmd.split()
+		elseif key == 'k' then
+			vim.o.splitbelow = false
+			vim.cmd.split()
+		elseif key == 'l' then
+			vim.o.splitright = true
+			vim.cmd.vsplit()
+		end
+		vim.o.splitright = sr
+		vim.o.splitbelow = sb
+
+		return getwin()
 	end)
-	return id
 end
+
 M.create_actions = {
 	function(winid) -- h
-		return make_split(winid, vim.cmd.vsplit, false)
+		return make_split(winid, 'h')
 	end,
 	function(winid) -- j
-		return make_split(winid, vim.cmd.split, true)
+		return make_split(winid, 'j')
 	end,
 	function(winid) -- k
-		return make_split(winid, vim.cmd.split, false)
+		return make_split(winid, 'k')
 	end,
 	function(winid) -- l
-		return make_split(winid, vim.cmd.vsplit, true)
+		return make_split(winid, 'l')
 	end,
 }
 
