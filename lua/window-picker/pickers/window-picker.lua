@@ -92,6 +92,9 @@ function M:pick_window()
 			if self.autoselect_one and #windows == 1 then
 				char = self.chars[1]
 			else
+				self.filter.include_current_win = true
+				self.hint:clear()
+				self.hint:draw(windows, false, true)
 				char = util.get_user_input_char()
 			end
 		end

@@ -155,9 +155,9 @@ function M:_show_letter_in_window(window, char, position)
 	return window_id
 end
 
-function M:draw(windows, or_create)
-	local include_curwin =
-		require('window-picker.config').filter_rules.include_current_win
+function M:draw(windows, or_create, include_curwin)
+	include_curwin = include_curwin
+		or require('window-picker.config').filter_rules.include_current_win
 	local curwin = vim.api.nvim_get_current_win()
 	for index, window in ipairs(windows) do
 		if include_curwin or (window ~= curwin) then
